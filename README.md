@@ -12,7 +12,7 @@
    - Windows: `venv\Scripts\activate`
    - Linux: `source venv/bin/activate`
 5. Install dependencies\
-`pip install -r requirments.txt`
+`pip install -r requirements.txt`
 6. (Optional) Add OpenAI API key to environmental variables:
    - Windows: `setx OPENAI_API_KEY "API_KEY"`
    - Linux: `export OPENAI_API_KEY="API_KEY"`
