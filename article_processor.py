@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 
-import argparse
-import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
-import openai
-import os
+from openai import OpenAI
 
 
-def read_article_from_txt(filepath):
+def read_text_from_file(filepath: Path) -> str:
     with open(filepath, encoding="utf-8") as f:
         content = f.read()
     return content
 
 
-def process_article(article_text: str, api_key: str):
-    pass
+def save_text_to_file(article_text: str, filepath: Path) -> None:
+    with open(filepath, "w", encoding="UTF-8") as file:
+        file.write(article_text)
 
 
-def configure_parser():
-    argument_parser = argparse.ArgumentParser()
+def configure_parser() -> ArgumentParser:
+    argument_parser = ArgumentParser()
 
     argument_parser.add_argument(
         "-i",
@@ -27,6 +26,15 @@ def configure_parser():
         type=Path,
         required=True,
         help="Path to the input article",
+    )
+
+    argument_parser.add_argument(
+        "-o",
+        "--output-path",
+        type=Path,
+        default=Path("artykul.html"),
+        required=False,
+        help="Path for output file",
     )
 
     argument_parser.add_argument(
@@ -38,34 +46,48 @@ def configure_parser():
     )
 
     argument_parser.add_argument(
-        "-ek",
-        "--env-key",
-        action=argparse.BooleanOptionalAction,
-        type=bool,
+        "-m",
+        "--model",
+        type=str,
         required=False,
-        default=False,
-        help="Use OPENAI_API_KEY environment variable",
+        default="gpt-3.5-turbo",
+        help="Specify which OpenAI model to use",
+    )
+
+    argument_parser.add_argument(
+        "-pf",
+        "--prompt-file",
+        type=Path,
+        required=False,
+        default="prompt.txt",
+        help="Path for prompt file",
     )
 
     return argument_parser
 
 
-def configure_api_key(api_key, use_env_key):
-    if api_key:
-        openai.api_key = api_key or os.environ.get("OPENAI_API_KEY")
-    elif use_env_key:
-        if "OPENAI_API_KEY" in os.environ:
-            openai.api_key = os.environ.get("OPENAI_API_KEY")
-        else:
-            sys.exit("OPENAI_API_KEY environment variable not set")
-    else:
-        sys.exit("Can't proceed without API key")
+def process_article(
+    article_text: str, prompt_text: str, model: str, api_key: str = None
+) -> str:
+    client = OpenAI(api_key=api_key)
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": prompt_text},
+            {"role": "user", "content": article_text},
+        ],
+    )
+
+    return response.choices[0].message.content
 
 
 if __name__ == "__main__":
     parser = configure_parser()
     args = parser.parse_args()
 
-    configure_api_key(args.api_key, args.env_key)
+    article = read_text_from_file(args.input_article)
+    prompt = read_text_from_file(args.prompt_file)
 
-    print(read_article_from_txt(args.input_article))
+    processed_article = process_article(article, prompt, args.model, args.api_key)
+    save_text_to_file(processed_article, args.output_path)

@@ -1,0 +1,11 @@
+Process given article into valid HTML tags.
+Only provide part of article between <body> tags, without providing <body> tag itself.
+Please, choose tags to maximize SEO score of article. Wrap everything in <article> tag. Utilize <section> tag.
+Use various level header tags. You may also use tags enhancing text where suitable.
+Select places for the <img> tag where the presence of an image would enrich and enhance the article.
+For every <img> tag, use src='image_placeholder.jpg'.
+In the alt attribute of <img> tag, add prompt that can be used for image generation.
+Prompt should be comprehensive description of every detail needed for image generating network.
+Also, for every <img> tag, add <figcaption> tag with summary of image content in article language.
+The <figcaption> tag content must be in article language.
+The <img> and <figcaption> tags should be placed into <figure> tag.
